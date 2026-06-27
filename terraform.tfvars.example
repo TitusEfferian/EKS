@@ -1,0 +1,13 @@
+# Copy to terraform.tfvars and fill in your values:
+#   cp terraform.tfvars.example terraform.tfvars
+#
+# terraform.tfvars is gitignored so your real IP stays out of this public repo.
+
+region             = "ap-northeast-1"
+cluster_name       = "tituseff-playground"
+kubernetes_version = "1.36"
+node_pools         = ["general-purpose", "system"]
+
+# Your workstation's public IP, so only you can reach the cluster's API endpoint.
+# Find it with:  curl https://checkip.amazonaws.com
+public_access_cidrs = ["YOUR_PUBLIC_IP/32"]
