@@ -23,7 +23,7 @@ data "aws_subnets" "default" {
 # controller are all AWS-managed in Auto Mode — nothing to install here.
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 21.0"
+  version = "21.24.0"
 
   name               = var.cluster_name
   kubernetes_version = var.kubernetes_version
