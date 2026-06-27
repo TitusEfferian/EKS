@@ -1,0 +1,19 @@
+# Local .terraform directory (providers, modules, plugins)
+.terraform/
+
+# Terraform state — may contain secrets, never commit
+*.tfstate
+*.tfstate.*
+
+# Crash logs
+crash.log
+crash.*.log
+
+# Plan output files
+*.tfplan
+
+# Your real tfvars holds your IP — keep it out of this public repo.
+# Use terraform.tfvars.example as the template.
+terraform.tfvars
+
+# Tracked on purpose: .terraform.lock.hcl, terraform.tfvars.example
