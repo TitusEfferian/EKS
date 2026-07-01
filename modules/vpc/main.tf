@@ -17,11 +17,9 @@ module "vpc" {
   private_subnets = local.private_subnets
   public_subnets  = local.public_subnets
 
-  # The Internet Gateway is created automatically because public_subnets is
-  # non-empty. NAT gateway(s) give the private subnets outbound internet access.
   enable_nat_gateway     = true
-  single_nat_gateway     = var.single_nat_gateway  # true  -> one shared NAT
-  one_nat_gateway_per_az = !var.single_nat_gateway # false -> set true for per-AZ HA
+  single_nat_gateway     = var.single_nat_gateway
+  one_nat_gateway_per_az = !var.single_nat_gateway
 
   # Required by EKS: enable_dns_hostnames defaults to FALSE on a new VPC; without
   # it nodes cannot register and interface-endpoint private DNS will not resolve.
