@@ -30,10 +30,5 @@ output "node_iam_role_arn" {
 
 output "lbc_pod_identity_role_arn" {
   description = "IAM role ARN assumed by the AWS Load Balancer Controller via EKS Pod Identity. No SA annotation is needed (Pod Identity); shown for reference/verification."
-  value       = module.eks.lbc_pod_identity_role_arn
-}
-
-output "configure_kubectl" {
-  description = "Run this to point kubectl at the new cluster after apply."
-  value       = "aws eks update-kubeconfig --region ${var.region} --name ${module.eks.cluster_name}"
+  value       = module.aws_lb_controller_pod_identity.iam_role_arn
 }

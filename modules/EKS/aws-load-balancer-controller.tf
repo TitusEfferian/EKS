@@ -40,9 +40,3 @@ resource "aws_ec2_tag" "subnet_cluster" {
   key         = "kubernetes.io/cluster/${var.cluster_name}"
   value       = "shared"
 }
-
-# --- Output ------------------------------------------------------------------
-output "lbc_pod_identity_role_arn" {
-  description = "IAM role ARN assumed by the AWS Load Balancer Controller via EKS Pod Identity. No SA annotation is needed (Pod Identity); shown for reference/verification."
-  value       = module.aws_lb_controller_pod_identity.iam_role_arn
-}
