@@ -8,7 +8,7 @@ locals {
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 6.0" # resolves to v6.6.1; requires aws provider >= 6.28
+  version = "6.6.1" # pinned; requires aws provider >= 6.28
 
   name = var.name
   cidr = var.cidr
@@ -51,7 +51,7 @@ module "vpc" {
 ###############################################################################
 module "vpc_endpoints" {
   source  = "terraform-aws-modules/vpc/aws//modules/vpc-endpoints"
-  version = "~> 6.0"
+  version = "6.6.1"
 
   count = var.enable_s3_gateway_endpoint ? 1 : 0
 
