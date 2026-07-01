@@ -1,16 +1,3 @@
-###############################################################################
-# Dedicated VPC for the EKS Auto Mode cluster (built on terraform-aws-modules/vpc).
-#
-# Two subnet tiers per AZ across the requested Availability Zones:
-#   private (/19) -> EKS Auto Mode nodes + pods; no public IPs, egress via NAT.
-#   public  (/22) -> NAT gateway(s) + internet-facing load balancers only.
-#
-# Ingress / egress model:
-#   public  route table  : 0.0.0.0/0 -> Internet Gateway (auto-created)
-#   private route tables : 0.0.0.0/0 -> NAT gateway (in a public subnet)
-#   S3 traffic           : -> free S3 Gateway VPC endpoint (bypasses NAT)
-###############################################################################
-
 locals {
   # Subnet math derived from var.cidr. For the default 10.0.0.0/16 this yields:
   #   private /19 (8,190 usable each): 10.0.0.0/19, 10.0.32.0/19, 10.0.64.0/19
