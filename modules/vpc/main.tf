@@ -8,7 +8,7 @@ locals {
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "6.6.1" # pinned; requires aws provider >= 6.28
+  version = "6.6.1"
 
   name = var.name
   cidr = var.cidr
