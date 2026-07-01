@@ -1,7 +1,3 @@
-# Dedicated VPC (private subnets in 1a/1c/1d + NAT + IGW). Resources live in
-# ./modules/vpc. The EKS module below still consumes the account's DEFAULT VPC;
-# to migrate it, pass  vpc_id = module.vpc.vpc_id  and
-# subnet_ids = module.vpc.private_subnet_ids  into ./modules/EKS.
 module "vpc" {
   source = "./modules/vpc"
 
