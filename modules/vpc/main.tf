@@ -21,8 +21,6 @@ module "vpc" {
   single_nat_gateway     = var.single_nat_gateway
   one_nat_gateway_per_az = !var.single_nat_gateway
 
-  # Required by EKS: enable_dns_hostnames defaults to FALSE on a new VPC; without
-  # it nodes cannot register and interface-endpoint private DNS will not resolve.
   enable_dns_hostnames = true
   enable_dns_support   = true
 
