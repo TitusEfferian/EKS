@@ -6,14 +6,6 @@ Minimal Terraform that stands up an **Amazon EKS Auto Mode** cluster in the exis
 module. Only the cluster is managed here — no Kubernetes/`kubectl` resources (custom
 NodePools, add-ons, etc. come later in a separate project).
 
-## Layout
-- Root (`main.tf`, `variables.tf`, `outputs.tf`, `providers.tf`, `versions.tf`) is a thin
-  caller: it declares the input variables, configures the AWS provider, and calls the local
-  child module below — it defines no resources of its own.
-- [`modules/EKS`](./modules/EKS) is where the actual configuration lives: the EKS Auto Mode
-  cluster, the AWS Load Balancer Controller's EKS Pod Identity role, and the public-subnet
-  discovery tags it needs. See that module's own README for its inputs/outputs.
-
 ## What this creates
 - An EKS cluster (`tituseff-playground`, Kubernetes `1.36`) with **Auto Mode** enabled
   (`general-purpose` + `system` built-in node pools).
