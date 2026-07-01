@@ -24,7 +24,6 @@ module "vpc" {
   enable_dns_hostnames = true
   enable_dns_support   = true
 
-  # Load balancers/NAT get their own EIPs; nodes run in the private tier.
   map_public_ip_on_launch = false
 
   # Subnet auto-discovery tags for EKS Auto Mode's built-in load balancing /
