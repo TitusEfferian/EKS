@@ -1,3 +1,14 @@
+module "vpc" {
+  source = "./modules/vpc"
+
+  name                       = "${var.cluster_name}-vpc"
+  cidr                       = var.vpc_cidr
+  azs                        = var.vpc_azs
+  single_nat_gateway         = var.single_nat_gateway
+  enable_s3_gateway_endpoint = var.enable_s3_gateway_endpoint
+  tags                       = var.tags
+}
+
 # EKS Auto Mode cluster + AWS Load Balancer Controller prerequisites.
 # All actual resources live in ./modules/EKS; this root just wires variables through.
 module "eks" {

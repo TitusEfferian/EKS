@@ -38,3 +38,27 @@ variable "tags" {
     Component   = "eks-auto-mode"
   }
 }
+
+variable "vpc_cidr" {
+  description = "CIDR block for the dedicated EKS VPC. Chosen to avoid overlap with the account's default VPC (172.31.0.0/16)."
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+variable "vpc_azs" {
+  description = "Availability Zones for the VPC subnets. Tokyo (ap-northeast-1) exposes 1a/1c/1d only (no 1b)."
+  type        = list(string)
+  default     = ["ap-northeast-1a", "ap-northeast-1c", "ap-northeast-1d"]
+}
+
+variable "single_nat_gateway" {
+  description = "true = one shared NAT gateway (1 Elastic IP, cheapest, single-AZ SPOF). false = one NAT gateway per AZ (HA; needs one free Elastic IP per AZ)."
+  type        = bool
+  default     = true
+}
+
+variable "enable_s3_gateway_endpoint" {
+  description = "Create the free S3 Gateway VPC endpoint so ECR image pulls skip paid NAT data processing."
+  type        = bool
+  default     = true
+}

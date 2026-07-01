@@ -37,3 +37,29 @@ output "configure_kubectl" {
   description = "Run this to point kubectl at the new cluster after apply."
   value       = "aws eks update-kubeconfig --region ${var.region} --name ${module.eks.cluster_name}"
 }
+
+# --- Dedicated VPC (./modules/vpc) ---
+output "vpc_id" {
+  description = "ID of the dedicated EKS VPC."
+  value       = module.vpc.vpc_id
+}
+
+output "vpc_cidr_block" {
+  description = "Primary CIDR block of the VPC."
+  value       = module.vpc.vpc_cidr_block
+}
+
+output "private_subnet_ids" {
+  description = "Private subnet IDs (EKS nodes + pods)."
+  value       = module.vpc.private_subnet_ids
+}
+
+output "public_subnet_ids" {
+  description = "Public subnet IDs (NAT gateways + internet-facing load balancers)."
+  value       = module.vpc.public_subnet_ids
+}
+
+output "nat_public_ips" {
+  description = "Elastic IP(s) of the NAT gateway(s) — the cluster's outbound egress address(es)."
+  value       = module.vpc.nat_public_ips
+}
