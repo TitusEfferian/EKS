@@ -1,3 +1,18 @@
+# Dedicated VPC (private subnets in 1a/1c/1d + NAT + IGW). Resources live in
+# ./modules/vpc. The EKS module below still consumes the account's DEFAULT VPC;
+# to migrate it, pass  vpc_id = module.vpc.vpc_id  and
+# subnet_ids = module.vpc.private_subnet_ids  into ./modules/EKS.
+module "vpc" {
+  source = "./modules/vpc"
+
+  name                       = "${var.cluster_name}-vpc"
+  cidr                       = var.vpc_cidr
+  azs                        = var.vpc_azs
+  single_nat_gateway         = var.single_nat_gateway
+  enable_s3_gateway_endpoint = var.enable_s3_gateway_endpoint
+  tags                       = var.tags
+}
+
 # EKS Auto Mode cluster + AWS Load Balancer Controller prerequisites.
 # All actual resources live in ./modules/EKS; this root just wires variables through.
 module "eks" {
