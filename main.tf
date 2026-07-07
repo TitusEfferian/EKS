@@ -18,5 +18,12 @@ module "eks" {
   kubernetes_version  = var.kubernetes_version
   node_pools          = var.node_pools
   public_access_cidrs = var.public_access_cidrs
-  tags                = var.tags
+
+  # Deploy the cluster into the dedicated VPC's PRIVATE subnets so EKS Auto Mode
+  # nodes egress through the NAT gateway (a stable outbound path) instead of
+  # getting ephemeral public IPs as they would in the default VPC's public subnets.
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.private_subnet_ids
+
+  tags = var.tags
 }

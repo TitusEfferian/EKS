@@ -19,24 +19,7 @@ module "aws_lb_controller_pod_identity" {
   tags = var.tags
 }
 
-# --- Public subnet discovery tags --------------------------------------------
-# The controller auto-discovers subnets for internet-facing ALBs by these tags.
-# The default VPC's subnets are untagged, so tag all of them here.
-#
-# kubernetes.io/role/elb = 1  -> eligible for PUBLIC (internet-facing) load balancers.
-resource "aws_ec2_tag" "subnet_elb_role" {
-  for_each = toset(data.aws_subnets.default.ids)
-
-  resource_id = each.value
-  key         = "kubernetes.io/role/elb"
-  value       = "1"
-}
-
-# kubernetes.io/cluster/<name> = shared -> associates the subnet with this cluster.
-resource "aws_ec2_tag" "subnet_cluster" {
-  for_each = toset(data.aws_subnets.default.ids)
-
-  resource_id = each.value
-  key         = "kubernetes.io/cluster/${var.cluster_name}"
-  value       = "shared"
-}
+# NOTE: Subnet discovery tags for the AWS Load Balancer Controller are applied by
+# ./modules/vpc (public_subnet_tags = kubernetes.io/role/elb=1, private_subnet_tags
+# = kubernetes.io/role/internal-elb=1), so no per-subnet aws_ec2_tag resources are
+# needed now that the cluster runs in the dedicated VPC instead of the default VPC.

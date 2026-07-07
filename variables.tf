@@ -1,5 +1,5 @@
 variable "region" {
-  description = "AWS region to deploy into. Must be the region that contains the default VPC you want to reuse."
+  description = "AWS region to deploy into. Must match the region of vpc_azs (the dedicated EKS VPC is created here)."
   type        = string
   default     = "ap-northeast-1"
 }

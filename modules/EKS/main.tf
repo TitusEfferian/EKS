@@ -1,16 +1,4 @@
-# Reuse the existing default VPC and its subnets in the target region.
-data "aws_vpc" "default" {
-  default = true
-}
-
-data "aws_subnets" "default" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.default.id]
-  }
-}
-
-# EKS cluster in Auto Mode, deployed into the default VPC.
+# EKS cluster in Auto Mode, deployed into the dedicated VPC's private subnets.
 #
 # With compute_config.enabled = true the module also creates BOTH IAM roles
 # automatically, with the correct managed policies:
@@ -34,9 +22,9 @@ module "eks" {
     node_pools = var.node_pools
   }
 
-  # --- Networking: reuse the existing default VPC ---
-  vpc_id     = data.aws_vpc.default.id
-  subnet_ids = data.aws_subnets.default.ids
+  # --- Networking: dedicated VPC, PRIVATE subnets (nodes egress via the NAT) ---
+  vpc_id     = var.vpc_id
+  subnet_ids = var.subnet_ids
 
   # --- Kubernetes API endpoint exposure ---
   endpoint_public_access       = true
