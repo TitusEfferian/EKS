@@ -18,5 +18,9 @@ module "eks" {
   kubernetes_version  = var.kubernetes_version
   node_pools          = var.node_pools
   public_access_cidrs = var.public_access_cidrs
-  tags                = var.tags
+
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.private_subnet_ids
+
+  tags = var.tags
 }

@@ -3,6 +3,16 @@ variable "cluster_name" {
   type        = string
 }
 
+variable "vpc_id" {
+  description = "ID of the VPC to deploy the EKS cluster into (the dedicated VPC created by ./modules/vpc)."
+  type        = string
+}
+
+variable "subnet_ids" {
+  description = "Private subnet IDs for the EKS control-plane ENIs and Auto Mode nodes. Node egress follows these subnets' route tables (0.0.0.0/0 -> NAT gateway), giving a stable outbound path."
+  type        = list(string)
+}
+
 variable "kubernetes_version" {
   description = "Kubernetes control-plane version for the EKS cluster. Leave null to fall back to the underlying module's own default."
   type        = string
