@@ -18,8 +18,3 @@ module "aws_lb_controller_pod_identity" {
 
   tags = var.tags
 }
-
-# NOTE: Subnet discovery tags for the AWS Load Balancer Controller are applied by
-# ./modules/vpc (public_subnet_tags = kubernetes.io/role/elb=1, private_subnet_tags
-# = kubernetes.io/role/internal-elb=1), so no per-subnet aws_ec2_tag resources are
-# needed now that the cluster runs in the dedicated VPC instead of the default VPC.
