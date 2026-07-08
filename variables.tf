@@ -62,3 +62,34 @@ variable "enable_s3_gateway_endpoint" {
   type        = bool
   default     = true
 }
+
+variable "clients" {
+  description = <<-EOT
+    Clients that need a DEDICATED static egress IP (see ./modules/client-egress).
+    Map key = client name; it becomes the `egress-client` subnet tag that the EKS
+    Auto Mode NodeClass selects on. Each entry provisions a dedicated private
+    subnet + route table + NAT gateway + Elastic IP in ONE AZ (one entry = one
+    static egress IP). CIDRs must be carved from the VPC's free space
+    (10.0.108.0/22+ for the default 10.0.0.0/16) and must NOT overlap the
+    module.vpc private/public subnets.
+  EOT
+  type = map(object({
+    az   = string
+    cidr = string
+  }))
+  default = {
+    "destination-a" = {
+      az   = "ap-northeast-1a"
+      cidr = "10.0.108.0/24"
+    }
+  }
+
+  validation {
+    condition     = alltrue([for k, v in var.clients : can(cidrhost(v.cidr, 0))])
+    error_message = "Every client's cidr must be a valid IPv4 CIDR block (e.g. 10.0.108.0/24)."
+  }
+  validation {
+    condition     = alltrue([for k, v in var.clients : contains(["ap-northeast-1a", "ap-northeast-1c", "ap-northeast-1d"], v.az)])
+    error_message = "Every client's az must be one of ap-northeast-1a / ap-northeast-1c / ap-northeast-1d (Tokyo has no 1b), and must match an AZ in var.vpc_azs."
+  }
+}

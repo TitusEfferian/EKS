@@ -24,3 +24,12 @@ module "eks" {
 
   tags = var.tags
 }
+
+module "client_egress" {
+  source = "./modules/client-egress"
+
+  vpc_id                  = module.vpc.vpc_id
+  public_subnet_ids_by_az = zipmap(module.vpc.azs, module.vpc.public_subnet_ids)
+  clients                 = var.clients
+  tags                    = var.tags
+}
