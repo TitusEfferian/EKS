@@ -28,6 +28,11 @@ output "node_iam_role_arn" {
   value       = module.eks.node_iam_role_arn
 }
 
+output "node_iam_role_name" {
+  description = "Name of the IAM role used by the EKS Auto Mode nodes. Consumed by a custom NodeClass.spec.role (Auto Mode takes the role NAME, not the ARN). Reusing this existing role means its EKS access entry already exists."
+  value       = module.eks.node_iam_role_name
+}
+
 output "lbc_pod_identity_role_arn" {
   description = "IAM role ARN assumed by the AWS Load Balancer Controller via EKS Pod Identity. No SA annotation is needed (Pod Identity); shown for reference/verification."
   value       = module.aws_lb_controller_pod_identity.iam_role_arn
