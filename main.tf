@@ -25,12 +25,6 @@ module "eks" {
   tags = var.tags
 }
 
-# Per-client dedicated static egress IPs (see ./modules/client-egress).
-# Each client gets a dedicated private subnet -> route table -> NAT gateway ->
-# Elastic IP, so the client sees ONE stable outbound IP. EKS Auto Mode pins the
-# client's nodes to that subnet via a NodeClass (matched on the egress-client tag),
-# so their pods egress through the client's dedicated NAT. Additive and
-# non-disruptive: the shared cluster NAT/route table (module.vpc) is untouched.
 module "client_egress" {
   source = "./modules/client-egress"
 

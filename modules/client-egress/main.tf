@@ -1,25 +1,3 @@
-###############################################################################
-# Per-client dedicated static egress IP.
-#
-# For each client this creates a dedicated egress path so the client sees a
-# single, stable outbound IP (which they can allowlist on their side):
-#
-#   dedicated private subnet  ->  dedicated route table (0.0.0.0/0)
-#     ->  dedicated NAT gateway  ->  dedicated Elastic IP  (= the static egress IP)
-#
-# The private subnet is tagged `egress-client = <name>`; the EKS Auto Mode
-# NodeClass selects it via subnetSelectorTerms, so ONLY that client's nodes
-# (and therefore their pods, via the VPC CNI) land there and egress through the
-# client's dedicated NAT. This routes by SOURCE (which subnet the workload runs
-# in) instead of by destination CIDR.
-#
-# The NAT gateway is placed in an EXISTING public subnet (already routed to the
-# IGW) in the SAME AZ as the client's private subnet, to avoid cross-AZ NAT
-# data-processing charges. A subnet and a NAT gateway are both AZ-scoped, so one
-# client entry here == one AZ == one static IP (no multi-AZ HA — that would need
-# one subnet/NAT/EIP per AZ and the client would allowlist several IPs).
-###############################################################################
-
 # Dedicated private workload subnet — EKS Auto Mode nodes for this client land here.
 resource "aws_subnet" "this" {
   for_each = var.clients
