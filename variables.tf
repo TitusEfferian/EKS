@@ -82,6 +82,10 @@ variable "clients" {
       az   = "ap-northeast-1a"
       cidr = "10.0.108.0/24"
     }
+    "destination-b" = {
+      az   = "ap-northeast-1a"
+      cidr = "10.0.109.0/24"
+    }
   }
 
   validation {
