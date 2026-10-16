@@ -35,13 +35,6 @@ aws eks update-kubeconfig --region ap-northeast-1 --name tituseff-playground
 ```
 
 ## Teardown
-`terraform destroy` alone is **not** enough. Deleting the cluster removes every Kubernetes
-object and Auto Mode terminates its nodes, but AWS resources created by in-cluster
-controllers are **not in Terraform state**. The main one is the ALB (plus target groups and
-`k8s-*` security groups) created by the AWS Load Balancer Controller for the Argo CD
-`argocd-server` Ingress (from the `eks-infra` repo). Once the cluster is gone nothing deletes
-it, and destroy fails with `DependencyViolation` on the subnets / internet gateway / VPC.
-Remove those resources **while the cluster and controller are still running**.
 
 **1. Prerequisites**
 ```bash
