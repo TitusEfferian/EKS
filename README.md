@@ -17,7 +17,7 @@ In Auto Mode, AWS fully manages compute (Karpenter), block storage, and load bal
 you do **not** install Karpenter, CRDs, or add-ons to bring the cluster up.
 
 ## Prerequisites
-- Terraform `>= 1.5.7`.
+- Terraform `>= 1.9.0` (cross-variable validation for the module toggles).
 - AWS provider `~> 6.0` (pinned in `versions.tf`, fetched by `terraform init`).
 - **AWS credentials with write access.** The read-only token used for discovery cannot
   create resources — authenticate as an admin/PowerUser principal before `apply`.
@@ -33,6 +33,22 @@ After apply, point `kubectl` at the cluster (also emitted as the `configure_kube
 ```bash
 aws eks update-kubeconfig --region ap-northeast-1 --name tituseff-playground
 ```
+
+## Module toggles
+Each root module has a bool toggle (default `true`): `enable_vpc`, `enable_eks`,
+`enable_client_egress`. Set one to `false` in `terraform.tfvars` (or `-var`) and
+`terraform apply` destroys that module; set it back to `true` to recreate it. The cluster
+and the client egress both live inside the VPC, so `enable_eks` / `enable_client_egress`
+require `enable_vpc = true` (enforced by variable validation).
+
+Recommended teardown order:
+1. Delete Kubernetes `Ingress` / `Service type=LoadBalancer` objects first so Auto Mode
+   removes its ALBs/ENIs (see Teardown step 3 below).
+2. `terraform apply -var enable_eks=false -var enable_client_egress=false`
+3. `terraform apply -var enable_vpc=false -var enable_eks=false -var enable_client_egress=false`
+
+Disabling `enable_client_egress` releases the Elastic IPs; re-enabling allocates new IPs,
+so client allowlists must be updated.
 
 ## Teardown
 

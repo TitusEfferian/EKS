@@ -97,3 +97,32 @@ variable "clients" {
     error_message = "Every client's az must be one of ap-northeast-1a / ap-northeast-1c / ap-northeast-1d (Tokyo has no 1b), and must match an AZ in var.vpc_azs."
   }
 }
+
+# --- Module toggles ---
+variable "enable_vpc" {
+  description = "Create the dedicated VPC (./modules/vpc). Required by enable_eks and enable_client_egress. Flip to false to destroy it."
+  type        = bool
+  default     = true
+}
+
+variable "enable_eks" {
+  description = "Create the EKS Auto Mode cluster + LBC Pod Identity (./modules/EKS). Requires enable_vpc = true. Flip to false to destroy the cluster."
+  type        = bool
+  default     = true
+
+  validation {
+    condition     = !var.enable_eks || var.enable_vpc
+    error_message = "enable_eks = true requires enable_vpc = true (the cluster is deployed into module.vpc's private subnets)."
+  }
+}
+
+variable "enable_client_egress" {
+  description = "Create per-client dedicated static egress subnets/NAT/EIPs (./modules/client-egress). Requires enable_vpc = true. Flip to false to destroy them."
+  type        = bool
+  default     = true
+
+  validation {
+    condition     = !var.enable_client_egress || var.enable_vpc
+    error_message = "enable_client_egress = true requires enable_vpc = true (egress NATs live in module.vpc's public subnets)."
+  }
+}

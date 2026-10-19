@@ -1,5 +1,6 @@
 module "vpc" {
   source = "./modules/vpc"
+  count  = var.enable_vpc ? 1 : 0
 
   name                       = "${var.cluster_name}-vpc"
   cidr                       = var.vpc_cidr
@@ -13,23 +14,43 @@ module "vpc" {
 # All actual resources live in ./modules/EKS; this root just wires variables through.
 module "eks" {
   source = "./modules/EKS"
+  count  = var.enable_eks ? 1 : 0
 
   cluster_name        = var.cluster_name
   kubernetes_version  = var.kubernetes_version
   node_pools          = var.node_pools
   public_access_cidrs = var.public_access_cidrs
 
-  vpc_id     = module.vpc.vpc_id
-  subnet_ids = module.vpc.private_subnet_ids
+  vpc_id     = module.vpc[0].vpc_id
+  subnet_ids = module.vpc[0].private_subnet_ids
 
   tags = var.tags
 }
 
 module "client_egress" {
   source = "./modules/client-egress"
+  count  = var.enable_client_egress ? 1 : 0
 
-  vpc_id                  = module.vpc.vpc_id
-  public_subnet_ids_by_az = zipmap(module.vpc.azs, module.vpc.public_subnet_ids)
+  vpc_id                  = module.vpc[0].vpc_id
+  public_subnet_ids_by_az = zipmap(module.vpc[0].azs, module.vpc[0].public_subnet_ids)
   clients                 = var.clients
   tags                    = var.tags
+}
+
+# The enable_* toggles turned the modules into count-ed instances. These moved
+# blocks are no-ops on empty state, but anyone holding pre-toggle state (module.vpc
+# etc. without an index) gets a clean in-place rename instead of a destroy/recreate.
+moved {
+  from = module.vpc
+  to   = module.vpc[0]
+}
+
+moved {
+  from = module.eks
+  to   = module.eks[0]
+}
+
+moved {
+  from = module.client_egress
+  to   = module.client_egress[0]
 }
