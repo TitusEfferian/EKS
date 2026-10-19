@@ -36,21 +36,3 @@ module "client_egress" {
   clients                 = var.clients
   tags                    = var.tags
 }
-
-# The enable_* toggles turned the modules into count-ed instances. These moved
-# blocks are no-ops on empty state, but anyone holding pre-toggle state (module.vpc
-# etc. without an index) gets a clean in-place rename instead of a destroy/recreate.
-moved {
-  from = module.vpc
-  to   = module.vpc[0]
-}
-
-moved {
-  from = module.eks
-  to   = module.eks[0]
-}
-
-moved {
-  from = module.client_egress
-  to   = module.client_egress[0]
-}
