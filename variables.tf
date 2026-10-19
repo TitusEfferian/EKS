@@ -102,13 +102,13 @@ variable "clients" {
 variable "enable_vpc" {
   description = "Create the dedicated VPC (./modules/vpc). Required by enable_eks and enable_client_egress. Flip to false to destroy it."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "enable_eks" {
   description = "Create the EKS Auto Mode cluster + LBC Pod Identity (./modules/EKS). Requires enable_vpc = true. Flip to false to destroy the cluster."
   type        = bool
-  default     = true
+  default     = false
 
   validation {
     condition     = !var.enable_eks || var.enable_vpc
@@ -119,7 +119,7 @@ variable "enable_eks" {
 variable "enable_client_egress" {
   description = "Create per-client dedicated static egress subnets/NAT/EIPs (./modules/client-egress). Requires enable_vpc = true. Flip to false to destroy them."
   type        = bool
-  default     = true
+  default     = false
 
   validation {
     condition     = !var.enable_client_egress || var.enable_vpc
