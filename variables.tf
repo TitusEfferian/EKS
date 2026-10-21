@@ -203,7 +203,7 @@ variable "domain_records" {
 variable "enable_vpc" {
   description = "Create the dedicated VPC (./modules/vpc). Required by enable_eks and enable_client_egress. Flip to false to destroy it."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "enable_eks" {

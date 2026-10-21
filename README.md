@@ -36,7 +36,7 @@ aws eks update-kubeconfig --region ap-northeast-1 --name tituseff-playground
 
 ## Module toggles
 Each root module has a bool toggle, and the defaults in `variables.tf` are the source of truth:
-`enable_vpc` and `enable_route53_domain` default to `true`; `enable_eks`, `enable_client_egress`,
+`enable_route53_domain` defaults to `true`; `enable_vpc`, `enable_eks`, `enable_client_egress`,
 `enable_nifi_ingress` and `enable_nifi_dns` default to `false`. Flip a default in `variables.tf`
 (via PR) and `terraform apply` creates or destroys that module. Don't set these in `terraform.tfvars`,
 because a value there silently overrides the default.
