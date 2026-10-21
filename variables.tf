@@ -239,3 +239,47 @@ variable "enable_route53_domain" {
   type        = bool
   default     = false
 }
+
+variable "enable_nifi_ingress" {
+  description = <<-EOT
+    Create the ACM certificate (DNS-validated in the var.domain_name zone) for
+    the NiFi Ingress (./modules/nifi-ingress). Stage 1 of the two-stage apply:
+    the hosted zone must already exist. See README "NiFi ingress".
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "enable_nifi_dns" {
+  description = "Create the nifi_domain_name alias A record -> the NiFi Ingress ALB (stage 2). Requires enable_nifi_ingress = true and nifi_alb_name naming an ALB that already exists. Set back to false BEFORE deleting the Ingress."
+  type        = bool
+  default     = false
+
+  validation {
+    condition     = !var.enable_nifi_dns || var.enable_nifi_ingress
+    error_message = "enable_nifi_dns = true requires enable_nifi_ingress = true."
+  }
+}
+
+# --- NiFi ingress: ACM certificate + Route 53 alias (./modules/nifi-ingress) ---
+variable "nifi_domain_name" {
+  description = "FQDN for the NiFi Ingress. Must be a subdomain of var.domain_name (the hosted zone the certificate validation and alias records go into)."
+  type        = string
+  default     = "nifi.titusefferian.dev"
+
+  validation {
+    condition     = can(regex("^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,63}$", var.nifi_domain_name)) && endswith(var.nifi_domain_name, ".${var.domain_name}")
+    error_message = "nifi_domain_name must be a lowercase FQDN without a trailing dot that is a subdomain of domain_name (e.g. \"nifi.titusefferian.dev\")."
+  }
+}
+
+variable "nifi_alb_name" {
+  description = "Name of the ALB created for the eks-infra NiFi Ingress. Must match eks-infra nifi/values.yaml ingress.loadBalancerName (rendered as the alb.ingress.kubernetes.io/load-balancer-name annotation). Required (1-32 chars) when enable_nifi_dns = true."
+  type        = string
+  default     = "tituseff-playground-nifi"
+
+  validation {
+    condition     = !var.enable_nifi_dns || (length(var.nifi_alb_name) > 0 && length(var.nifi_alb_name) <= 32)
+    error_message = "nifi_alb_name must be set to the NiFi Ingress ALB name (1-32 characters) when enable_nifi_dns = true."
+  }
+}

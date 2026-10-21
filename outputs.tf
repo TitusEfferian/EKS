@@ -120,3 +120,14 @@ output "domain_records" {
   description = "Records created in the adopted hosted zone."
   value       = try(module.route53[0].records, {})
 }
+
+# --- NiFi ingress (./modules/nifi-ingress) ---
+output "nifi_acm_certificate_arn" {
+  description = "ARN of the NiFi ACM certificate. Copy into eks-infra nifi/values.yaml as ingress.certificateArn (null when enable_nifi_ingress = false)."
+  value       = one(module.nifi_ingress[*].acm_certificate_arn)
+}
+
+output "nifi_fqdn" {
+  description = "FQDN served by the NiFi Ingress (null when enable_nifi_ingress = false)."
+  value       = one(module.nifi_ingress[*].fqdn)
+}
