@@ -274,9 +274,9 @@ variable "nifi_domain_name" {
 }
 
 variable "nifi_alb_name" {
-  description = "Name of the ALB created for the eks-infra NiFi Ingress (its alb.ingress.kubernetes.io/load-balancer-name annotation). PLACEHOLDER: empty until that annotation is added in eks-infra. Required (1-32 chars) when enable_nifi_dns = true."
+  description = "Name of the ALB created for the eks-infra NiFi Ingress. Must match eks-infra nifi/values.yaml ingress.loadBalancerName (rendered as the alb.ingress.kubernetes.io/load-balancer-name annotation). Required (1-32 chars) when enable_nifi_dns = true."
   type        = string
-  default     = ""
+  default     = "tituseff-playground-nifi"
 
   validation {
     condition     = !var.enable_nifi_dns || (length(var.nifi_alb_name) > 0 && length(var.nifi_alb_name) <= 32)

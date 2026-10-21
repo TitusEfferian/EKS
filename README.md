@@ -114,13 +114,14 @@ needs the certificate ARN first, so this is a **two-stage apply**:
 the certificate and its validation CNAME and waits (up to 30m) for it to be `ISSUED`. Then, in
 eks-infra `nifi/values.yaml`:
 - set `ingress.certificateArn` to the output of `terraform output nifi_acm_certificate_arn`,
-- set `ingress.enabled: true`,
-- add the `alb.ingress.kubernetes.io/load-balancer-name` annotation to the Ingress
-  (**TODO in eks-infra**: it does not exist yet).
+- set `ingress.enabled: true`.
 
-**Stage 2 — DNS.** Once Argo CD has synced and the ALB exists, set `nifi_alb_name` to that
-annotation's value (max 32 characters) and `enable_nifi_dns = true`, then `terraform apply`
-again. This creates the alias `A` record `nifi.titusefferian.dev -> ALB`.
+The ALB name is pinned by `ingress.loadBalancerName` (rendered as the
+`alb.ingress.kubernetes.io/load-balancer-name` annotation) to `tituseff-playground-nifi`,
+which is also the `nifi_alb_name` default here; keep the two in sync (max 32 characters).
+
+**Stage 2 — DNS.** Once Argo CD has synced and the ALB exists, set `enable_nifi_dns = true`
+and `terraform apply` again. This creates the alias `A` record `nifi.titusefferian.dev -> ALB`.
 
 Caveats:
 - `data "aws_lb"` **errors if the ALB does not exist**. Set `enable_nifi_dns = false` and apply

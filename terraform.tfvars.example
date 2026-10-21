@@ -57,4 +57,4 @@ public_access_cidrs = ["YOUR_PUBLIC_IP/32"]
 # --- NiFi ingress (only used when enable_nifi_ingress = true; see README "NiFi ingress") ---
 # The certificate and alias record go into the domain_name hosted zone.
 # nifi_domain_name = "nifi.titusefferian.dev"
-# nifi_alb_name    = "" # TODO: set to the eks-infra NiFi Ingress alb.ingress.kubernetes.io/load-balancer-name
+# nifi_alb_name    = "tituseff-playground-nifi" # must match eks-infra nifi/values.yaml ingress.loadBalancerName
