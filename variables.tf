@@ -247,7 +247,7 @@ variable "enable_nifi_ingress" {
     the hosted zone must already exist. See README "NiFi ingress".
   EOT
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "enable_nifi_dns" {
