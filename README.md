@@ -36,8 +36,8 @@ aws eks update-kubeconfig --region ap-northeast-1 --name tituseff-playground
 
 ## Module toggles
 Each root module has a bool toggle, and the defaults in `variables.tf` are the source of truth:
-`enable_vpc`, `enable_eks`, `enable_route53_domain` and `enable_nifi_ingress` default to `true`;
-`enable_client_egress` and `enable_nifi_dns` default to `false`. Flip a default in `variables.tf`
+`enable_vpc`, `enable_eks`, `enable_route53_domain`, `enable_nifi_ingress` and `enable_nifi_dns`
+default to `true`; `enable_client_egress` defaults to `false`. Flip a default in `variables.tf`
 (via PR) and `terraform apply` creates or destroys that module. Don't set these in `terraform.tfvars`,
 because a value there silently overrides the default.
 **Exception:** `enable_route53_domain` buys a domain and is guarded by `prevent_destroy`, so
@@ -123,8 +123,9 @@ The ALB name is pinned by `ingress.loadBalancerName` (rendered as the
 `alb.ingress.kubernetes.io/load-balancer-name` annotation) to `tituseff-playground-nifi`,
 which is also the `nifi_alb_name` default here; keep the two in sync (max 32 characters).
 
-**Stage 2 — DNS.** Once Argo CD has synced and the ALB exists, set `enable_nifi_dns = true`
-and `terraform apply` again. This creates the alias `A` record `nifi.titusefferian.dev -> ALB`.
+**Stage 2 — DNS.** `enable_nifi_dns` now defaults to `true` in `variables.tf`, so once Argo CD
+has synced and the ALB exists, a plain `terraform apply` handles it.
+This creates the alias `A` record `nifi.titusefferian.dev -> ALB`.
 
 Caveats:
 - `data "aws_lb"` **errors if the ALB does not exist**. Set `enable_nifi_dns = false` and apply
