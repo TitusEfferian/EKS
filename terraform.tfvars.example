@@ -15,7 +15,7 @@ public_access_cidrs = ["YOUR_PUBLIC_IP/32"]
 # --- Module toggles ---
 # Each root module can be spawned (true) or destroyed (false) with a plain `terraform apply`.
 # enable_eks and enable_client_egress both require enable_vpc = true.
-# enable_vpc           = true  # dedicated VPC; disable LAST (after eks + client egress are gone)
+# enable_vpc           = false # dedicated VPC; disable LAST (after eks + client egress are gone)
 # enable_eks           = false # EKS Auto Mode cluster + LBC Pod Identity; delete Ingress/LoadBalancer Services before disabling
 # enable_client_egress = false # per-client static egress NAT/EIPs; disabling releases the EIPs (new IPs on re-enable)
 # enable_route53_domain = true  # WARNING: true BUYS domain_name via Route 53 Domains (non-refundable); see README "Domain registration"
