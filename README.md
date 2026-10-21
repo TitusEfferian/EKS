@@ -35,9 +35,12 @@ aws eks update-kubeconfig --region ap-northeast-1 --name tituseff-playground
 ```
 
 ## Module toggles
-Each root module has a bool toggle (default `true`): `enable_vpc`, `enable_eks`,
-`enable_client_egress`. Set one to `false` in `terraform.tfvars` (or `-var`) and
-`terraform apply` destroys that module; set it back to `true` to recreate it. The cluster
+Each root module has a bool toggle (default `false`): `enable_vpc`, `enable_eks`,
+`enable_client_egress`, `enable_route53_domain`. Set one to `true` in `terraform.tfvars`
+(or `-var`) and `terraform apply` creates that module; set it back to `false` to destroy it.
+**Exception:** `enable_route53_domain` buys a domain and is guarded by `prevent_destroy`, so
+flipping it back to `false` makes the plan fail instead of deregistering it (see
+[Domain registration](#domain-registration-route-53-domains)). The cluster
 and the client egress both live inside the VPC, so `enable_eks` / `enable_client_egress`
 require `enable_vpc = true` (enforced by variable validation).
 
@@ -49,6 +52,50 @@ Recommended teardown order:
 
 Disabling `enable_client_egress` releases the Elastic IPs; re-enabling allocates new IPs,
 so client allowlists must be updated.
+
+## Domain registration (Route 53 Domains)
+`./modules/route53` registers `titusefferian.dev` (`domain_name`) for `domain_duration_in_years`
+(default 1) with auto-renew on, using the raw `aws_route53domains_domain` resource (no
+terraform-aws-modules module supports registration). It then adopts the public hosted zone
+Route 53 auto-creates at registration via
+[`terraform-aws-modules/route53`](https://registry.terraform.io/modules/terraform-aws-modules/route53/aws/6.5.1)
+`6.5.1` with `create_zone = false`, so the domain stays delegated to that one zone and
+`domain_records` are managed there. The Route 53 Domains API is **us-east-1 only**, so the module
+runs on the `aws.us_east_1` provider alias (`providers.tf`).
+
+> [!WARNING]
+> `enable_route53_domain = true` + `terraform apply` **purchases the domain**. Registration is
+> **non-refundable**, and auto-renew bills the account every year until you turn it off.
+
+**Before enabling — check availability and price:**
+```bash
+aws route53domains check-domain-availability --domain-name titusefferian.dev --region us-east-1
+aws route53domains list-prices --tld dev --region us-east-1
+```
+
+**Enable:** set `enable_route53_domain = true` and fill `domain_contact` in the gitignored
+`terraform.tfvars` (placeholders in `terraform.tfvars.example`). **Never commit real contact
+details — this repo is public.** WHOIS privacy is enabled for every contact and the transfer
+lock is on.
+
+**After apply:**
+- **Verify the registrant email.** AWS sends a verification link; if it isn't clicked within
+  ~15 days the domain is suspended. Check status with:
+  ```bash
+  aws route53domains get-contact-reachability-status --domain-name titusefferian.dev --region us-east-1
+  ```
+- Registration is asynchronous and can take up to ~an hour (create timeout is 60m). Track it with
+  `aws route53domains list-operations --region us-east-1`.
+- `.dev` is on the **HSTS preload list**: browsers only connect over HTTPS, so anything served on
+  this domain needs a TLS certificate (e.g. ACM) — plain HTTP will never work.
+
+**Teardown / prevent_destroy:** `aws_route53domains_domain` has `lifecycle { prevent_destroy = true }`.
+`terraform destroy` or `enable_route53_domain = false` therefore **errors** instead of
+deregistering. Destroying the resource deregisters the domain with **no refund**. If you really
+want to give it up, either turn off auto-renew and let it expire (`domain_auto_renew = false`),
+or remove the `prevent_destroy` guard deliberately and then destroy. After deregistration, the
+auto-created hosted zone may be left behind (and keep billing ~$0.50/month): delete its records
+and the zone manually with `aws route53 delete-hosted-zone`.
 
 ## Teardown
 

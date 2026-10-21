@@ -10,8 +10,6 @@ module "vpc" {
   tags                       = var.tags
 }
 
-# EKS Auto Mode cluster + AWS Load Balancer Controller prerequisites.
-# All actual resources live in ./modules/EKS; this root just wires variables through.
 module "eks" {
   source = "./modules/EKS"
   count  = var.enable_eks ? 1 : 0
@@ -35,4 +33,20 @@ module "client_egress" {
   public_subnet_ids_by_az = zipmap(module.vpc[0].azs, module.vpc[0].public_subnet_ids)
   clients                 = var.clients
   tags                    = var.tags
+}
+
+module "route53" {
+  source = "./modules/route53"
+  count  = var.enable_route53_domain ? 1 : 0
+
+  providers = {
+    aws = aws.us_east_1
+  }
+
+  domain_name       = var.domain_name
+  duration_in_years = var.domain_duration_in_years
+  auto_renew        = var.domain_auto_renew
+  contact           = var.domain_contact
+  records           = var.domain_records
+  tags              = var.tags
 }
