@@ -253,7 +253,7 @@ variable "enable_nifi_ingress" {
 variable "enable_nifi_dns" {
   description = "Create the nifi_domain_name alias A record -> the NiFi Ingress ALB (stage 2). Requires enable_nifi_ingress = true and nifi_alb_name naming an ALB that already exists. Set back to false BEFORE deleting the Ingress."
   type        = bool
-  default     = false
+  default     = true
 
   validation {
     condition     = !var.enable_nifi_dns || var.enable_nifi_ingress
