@@ -10,8 +10,6 @@ module "vpc" {
   tags                       = var.tags
 }
 
-# EKS Auto Mode cluster + AWS Load Balancer Controller prerequisites.
-# All actual resources live in ./modules/EKS; this root just wires variables through.
 module "eks" {
   source = "./modules/EKS"
   count  = var.enable_eks ? 1 : 0
@@ -37,14 +35,10 @@ module "client_egress" {
   tags                    = var.tags
 }
 
-# Route 53 Domains registration of var.domain_name + adoption of the hosted zone
-# Route 53 auto-creates at registration. APPLYING THIS BUYS THE DOMAIN (non-refundable),
-# hence the default-false toggle and prevent_destroy inside the module.
 module "route53" {
   source = "./modules/route53"
   count  = var.enable_route53_domain ? 1 : 0
 
-  # Route 53 Domains API only exists in us-east-1.
   providers = {
     aws = aws.us_east_1
   }
