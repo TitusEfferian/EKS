@@ -203,13 +203,13 @@ variable "domain_records" {
 variable "enable_vpc" {
   description = "Create the dedicated VPC (./modules/vpc). Required by enable_eks and enable_client_egress. Flip to false to destroy it."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "enable_eks" {
   description = "Create the EKS Auto Mode cluster + LBC Pod Identity (./modules/EKS). Requires enable_vpc = true. Flip to false to destroy the cluster."
   type        = bool
-  default     = false
+  default     = true
 
   validation {
     condition     = !var.enable_eks || var.enable_vpc
@@ -237,7 +237,7 @@ variable "enable_route53_domain" {
     (see README "Domain registration" for the deliberate teardown path).
   EOT
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "enable_nifi_ingress" {

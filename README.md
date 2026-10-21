@@ -35,10 +35,11 @@ aws eks update-kubeconfig --region ap-northeast-1 --name tituseff-playground
 ```
 
 ## Module toggles
-Each root module has a bool toggle (default `false`, except `enable_nifi_ingress` which defaults to
-`true` in `variables.tf`): `enable_vpc`, `enable_eks`,
-`enable_client_egress`, `enable_route53_domain`, `enable_nifi_ingress`, `enable_nifi_dns`. Set one to `true` in `terraform.tfvars`
-(or `-var`) and `terraform apply` creates that module; set it back to `false` to destroy it.
+Each root module has a bool toggle, and the defaults in `variables.tf` are the source of truth:
+`enable_vpc`, `enable_eks`, `enable_route53_domain` and `enable_nifi_ingress` default to `true`;
+`enable_client_egress` and `enable_nifi_dns` default to `false`. Flip a default in `variables.tf`
+(via PR) and `terraform apply` creates or destroys that module. Don't set these in `terraform.tfvars`,
+because a value there silently overrides the default.
 **Exception:** `enable_route53_domain` buys a domain and is guarded by `prevent_destroy`, so
 flipping it back to `false` makes the plan fail instead of deregistering it (see
 [Domain registration](#domain-registration-route-53-domains)). The cluster
