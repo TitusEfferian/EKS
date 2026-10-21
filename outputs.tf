@@ -79,3 +79,44 @@ output "client_egress_details" {
   description = "Full per-client dedicated egress details (static IP, EIP allocation, dedicated subnet / NAT gateway / route table, AZ, CIDR)."
   value       = try(module.client_egress[0].clients, {})
 }
+
+# --- Route 53 domain registration (./modules/route53) ---
+output "domain_name" {
+  description = "Domain registered via Route 53 Domains (null when enable_route53_domain = false)."
+  value       = one(module.route53[*].domain_name)
+}
+
+output "domain_zone_id" {
+  description = "ID of the adopted public hosted zone for the registered domain."
+  value       = one(module.route53[*].zone_id)
+}
+
+output "domain_zone_name" {
+  description = "Name of the adopted public hosted zone for the registered domain."
+  value       = one(module.route53[*].zone_name)
+}
+
+output "domain_name_servers" {
+  description = "Name servers the registered domain is delegated to."
+  value       = try(module.route53[0].name_servers, [])
+}
+
+output "domain_hosted_zone_id" {
+  description = "Hosted zone ID reported by the Route 53 Domains registration (should equal domain_zone_id)."
+  value       = one(module.route53[*].hosted_zone_id)
+}
+
+output "domain_expiration_date" {
+  description = "Date the current domain registration expires (auto-renew extends it when enabled)."
+  value       = one(module.route53[*].expiration_date)
+}
+
+output "domain_status_list" {
+  description = "EPP status codes for the registered domain."
+  value       = try(module.route53[0].status_list, [])
+}
+
+output "domain_records" {
+  description = "Records created in the adopted hosted zone."
+  value       = try(module.route53[0].records, {})
+}

@@ -18,3 +18,36 @@ public_access_cidrs = ["YOUR_PUBLIC_IP/32"]
 # enable_vpc           = false # dedicated VPC; disable LAST (after eks + client egress are gone)
 # enable_eks           = false # EKS Auto Mode cluster + LBC Pod Identity; delete Ingress/LoadBalancer Services before disabling
 # enable_client_egress = false # per-client static egress NAT/EIPs; disabling releases the EIPs (new IPs on re-enable)
+# enable_route53_domain = false # WARNING: true BUYS domain_name via Route 53 Domains (non-refundable); see README "Domain registration"
+
+# --- Route 53 domain registration (only used when enable_route53_domain = true) ---
+# domain_name              = "titusefferian.dev"
+# domain_duration_in_years = 1
+# domain_auto_renew        = true
+#
+# Registrant/admin/tech/billing contact (WHOIS privacy is enabled). PLACEHOLDERS ONLY —
+# put your real details in terraform.tfvars (gitignored), never in this file.
+# The email must be verified within 15 days of registration or the domain is suspended.
+# domain_contact = {
+#   contact_type   = "PERSON"          # PERSON | COMPANY | ASSOCIATION | PUBLIC_BODY | RESELLER
+#   first_name     = "Jane"
+#   last_name      = "Doe"
+#   email          = "you@example.com"
+#   phone_number   = "+81.000000000"   # "+<country code>.<number>"
+#   address_line_1 = "1-1-1 Example"
+#   city           = "Chiyoda-ku"
+#   state          = "Tokyo"
+#   zip_code       = "100-0000"
+#   country_code   = "JP"              # ISO 3166-1 alpha-2
+# }
+#
+# Optional DNS records in the adopted zone (terraform-aws-modules/route53 `records` input).
+# .dev is HSTS-preloaded: anything you serve must be HTTPS.
+# domain_records = {
+#   apex_txt = {
+#     full_name = "titusefferian.dev"
+#     type      = "TXT"
+#     ttl       = 300
+#     records   = ["\"example-verification=placeholder\""]
+#   }
+# }
