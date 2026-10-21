@@ -50,3 +50,14 @@ module "route53" {
   records           = var.domain_records
   tags              = var.tags
 }
+
+module "nifi_ingress" {
+  source = "./modules/nifi-ingress"
+  count  = var.enable_nifi_ingress ? 1 : 0
+
+  domain_name = var.nifi_domain_name
+  zone_name   = var.domain_name
+  enable_dns  = var.enable_nifi_dns
+  alb_name    = var.nifi_alb_name
+  tags        = var.tags
+}

@@ -36,7 +36,7 @@ aws eks update-kubeconfig --region ap-northeast-1 --name tituseff-playground
 
 ## Module toggles
 Each root module has a bool toggle (default `false`): `enable_vpc`, `enable_eks`,
-`enable_client_egress`, `enable_route53_domain`. Set one to `true` in `terraform.tfvars`
+`enable_client_egress`, `enable_route53_domain`, `enable_nifi_ingress`, `enable_nifi_dns`. Set one to `true` in `terraform.tfvars`
 (or `-var`) and `terraform apply` creates that module; set it back to `false` to destroy it.
 **Exception:** `enable_route53_domain` buys a domain and is guarded by `prevent_destroy`, so
 flipping it back to `false` makes the plan fail instead of deregistering it (see
@@ -96,6 +96,38 @@ want to give it up, either turn off auto-renew and let it expire (`domain_auto_r
 or remove the `prevent_destroy` guard deliberately and then destroy. After deregistration, the
 auto-created hosted zone may be left behind (and keep billing ~$0.50/month): delete its records
 and the zone manually with `aws route53 delete-hosted-zone`.
+
+## NiFi ingress (ACM certificate + Route 53 alias)
+`./modules/nifi-ingress` issues a DNS-validated ACM certificate for `nifi.titusefferian.dev`
+(`nifi_domain_name`) with
+[`terraform-aws-modules/acm`](https://registry.terraform.io/modules/terraform-aws-modules/acm/aws/6.3.1)
+`6.3.1`, and points that name at the NiFi Ingress ALB with an alias `A` record via
+[`terraform-aws-modules/route53`](https://registry.terraform.io/modules/terraform-aws-modules/route53/aws/6.5.1)
+`6.5.1` (`create_zone = false`). Both go into the existing `domain_name` hosted zone, looked up
+by name, so the zone must already exist. The certificate is created in `ap-northeast-1` (default
+provider) because the ALB that uses it is in Tokyo. No `AAAA` record: the ALB is IPv4-only.
+
+The ALB is created by the AWS Load Balancer Controller from the eks-infra NiFi Ingress, which
+needs the certificate ARN first, so this is a **two-stage apply**:
+
+**Stage 1 — certificate.** Set `enable_nifi_ingress = true` and `terraform apply`. This creates
+the certificate and its validation CNAME and waits (up to 30m) for it to be `ISSUED`. Then, in
+eks-infra `nifi/values.yaml`:
+- set `ingress.certificateArn` to the output of `terraform output nifi_acm_certificate_arn`,
+- set `ingress.enabled: true`,
+- add the `alb.ingress.kubernetes.io/load-balancer-name` annotation to the Ingress
+  (**TODO in eks-infra**: it does not exist yet).
+
+**Stage 2 — DNS.** Once Argo CD has synced and the ALB exists, set `nifi_alb_name` to that
+annotation's value (max 32 characters) and `enable_nifi_dns = true`, then `terraform apply`
+again. This creates the alias `A` record `nifi.titusefferian.dev -> ALB`.
+
+Caveats:
+- `data "aws_lb"` **errors if the ALB does not exist**. Set `enable_nifi_dns = false` and apply
+  **before** deleting the Ingress (or tearing down the cluster), otherwise every plan fails.
+- **Keep the ACM validation CNAME** in the zone: ACM needs it to auto-renew the certificate.
+- **Don't run ExternalDNS for this hostname** at the same time; two writers would fight over
+  the record.
 
 ## Teardown
 
