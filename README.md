@@ -36,8 +36,8 @@ aws eks update-kubeconfig --region ap-northeast-1 --name tituseff-playground
 
 ## Module toggles
 Each root module has a bool toggle, and the defaults in `variables.tf` are the source of truth:
-`enable_vpc`, `enable_eks`, `enable_route53_domain`, `enable_nifi_ingress` and `enable_nifi_dns`
-default to `true`; `enable_client_egress` defaults to `false`. Flip a default in `variables.tf`
+`enable_vpc` and `enable_route53_domain` default to `true`; `enable_eks`, `enable_client_egress`,
+`enable_nifi_ingress` and `enable_nifi_dns` default to `false`. Flip a default in `variables.tf`
 (via PR) and `terraform apply` creates or destroys that module. Don't set these in `terraform.tfvars`,
 because a value there silently overrides the default.
 **Exception:** `enable_route53_domain` buys a domain and is guarded by `prevent_destroy`, so
@@ -112,8 +112,8 @@ provider) because the ALB that uses it is in Tokyo. No `AAAA` record: the ALB is
 The ALB is created by the AWS Load Balancer Controller from the eks-infra NiFi Ingress, which
 needs the certificate ARN first, so this is a **two-stage apply**:
 
-**Stage 1 — certificate.** `enable_nifi_ingress` defaults to `true` in `variables.tf`, so a plain
-`terraform apply` creates
+**Stage 1 — certificate.** `enable_nifi_ingress` defaults to `false` in `variables.tf`; set it to
+`true` (via PR) and a plain `terraform apply` creates
 the certificate and its validation CNAME and waits (up to 30m) for it to be `ISSUED`. Then, in
 eks-infra `nifi/values.yaml`:
 - set `ingress.certificateArn` to the output of `terraform output nifi_acm_certificate_arn`,
@@ -123,8 +123,8 @@ The ALB name is pinned by `ingress.loadBalancerName` (rendered as the
 `alb.ingress.kubernetes.io/load-balancer-name` annotation) to `tituseff-playground-nifi`,
 which is also the `nifi_alb_name` default here; keep the two in sync (max 32 characters).
 
-**Stage 2 — DNS.** `enable_nifi_dns` now defaults to `true` in `variables.tf`, so once Argo CD
-has synced and the ALB exists, a plain `terraform apply` handles it.
+**Stage 2 — DNS.** `enable_nifi_dns` defaults to `false` in `variables.tf`; once Argo CD
+has synced and the ALB exists, set it to `true` (via PR) and a plain `terraform apply` handles it.
 This creates the alias `A` record `nifi.titusefferian.dev -> ALB`.
 
 Caveats:

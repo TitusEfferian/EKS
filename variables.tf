@@ -209,7 +209,7 @@ variable "enable_vpc" {
 variable "enable_eks" {
   description = "Create the EKS Auto Mode cluster + LBC Pod Identity (./modules/EKS). Requires enable_vpc = true. Flip to false to destroy the cluster."
   type        = bool
-  default     = true
+  default     = false
 
   validation {
     condition     = !var.enable_eks || var.enable_vpc
@@ -247,13 +247,13 @@ variable "enable_nifi_ingress" {
     the hosted zone must already exist. See README "NiFi ingress".
   EOT
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "enable_nifi_dns" {
   description = "Create the nifi_domain_name alias A record -> the NiFi Ingress ALB (stage 2). Requires enable_nifi_ingress = true and nifi_alb_name naming an ALB that already exists. Set back to false BEFORE deleting the Ingress."
   type        = bool
-  default     = true
+  default     = false
 
   validation {
     condition     = !var.enable_nifi_dns || var.enable_nifi_ingress
